@@ -128,13 +128,13 @@ const startServer = async () => {
       await Message.create({ chatRoomId: req.params.chatRoomId, role: 'user', content: userMessage });
       
       const document = chatRoom.documentId;
-      const embeddings = new GoogleGenerativeAIEmbeddings({ model: 'embedding-001' });
+const embeddings = new GoogleGenerativeAIEmbeddings({ model: 'gemini-embedding-001', apiKey: process.env.GOOGLE_API_KEY });
       const vectorStore = await QdrantVectorStore.fromExistingCollection(embeddings, { url: process.env.QDRANT_URL, apiKey: process.env.QDRANT_API_KEY, collectionName: document.qdrantCollectionName });
       const retriever = vectorStore.asRetriever(4);
       const contextDocs = await retriever.invoke(userMessage);
       const context = contextDocs.map(doc => doc.pageContent).join('\n\n---\n\n');
       
-      const model = new ChatGoogleGenerativeAI({ model: 'gemini-1.5-flash-latest', temperature: 0.2 });
+     const model = new ChatGoogleGenerativeAI({ model: 'gemini-3.5-flash', temperature: 0.2, apiKey: process.env.GOOGLE_API_KEY });
       const prompt = `You are an expert AI assistant. Your task is to answer the user's question based *only* on the provided context from a PDF document. If the answer is not found in the context, you MUST say "I could not find the answer in the provided document." Do not use your general knowledge. CONTEXT: ${context} USER'S QUESTION: ${userMessage}`;
       const aiResponse = await model.invoke(prompt);
       const newAiMessage = await Message.create({ chatRoomId: req.params.chatRoomId, role: 'assistant', content: aiResponse.content });

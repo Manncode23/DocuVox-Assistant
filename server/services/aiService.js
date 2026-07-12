@@ -3,8 +3,9 @@ import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
 import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf';
 
 const model = new ChatGoogleGenerativeAI({
-  model: 'gemini-1.5-flash-latest',
+  model: 'gemini-3.5-flash',
   temperature: 0.7,
+  apiKey: process.env.GOOGLE_API_KEY,
 });
 
 // UPDATED to accept a URL
