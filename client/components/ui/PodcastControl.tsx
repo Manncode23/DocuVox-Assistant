@@ -106,11 +106,11 @@ export const PodcastControl = () => {
       );
 
     case 'FAILED':
-      return (
-        <Button variant="destructive" disabled className="w-48">
-          <AlertTriangle className="mr-2 h-4 w-4" /> Generation Failed
-        </Button>
-      );
+  return (
+    <Button variant="destructive" onClick={handleGenerate} disabled={!documentId} className="w-48">
+      <AlertTriangle className="mr-2 h-4 w-4" /> Retry Generation
+    </Button>
+  );
       
     case 'NONE':
     default:

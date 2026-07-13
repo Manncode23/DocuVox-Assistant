@@ -1,52 +1,45 @@
 // server/services/ttsService.js
-import { TextToSpeechClient } from '@google-cloud/text-to-speech';
 
-let client;
-
-// This function initializes the TTS client by finding the correct credentials
-const initializeClient = () => {
-  // If the client is already initialized, don't do it again.
-  if (client) {
-    return client;
-  }
-
-  let credentials;
-  
-  // --- THIS IS THE SIMPLIFIED FIX ---
-
-  // SCENARIO 1: The credentials JSON content is directly in an environment variable.
-  // This is how Railway provides it.
-  if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-    console.log("TTS Service: Found GOOGLE_APPLICATION_CREDENTIALS. Parsing credentials from variable.");
-    credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS);
-  } 
-  // SCENARIO 2: No credentials found
-  else {
-    // This is a clearer error. It tells the user exactly which variable to set.
-    throw new Error("Could not find Google Cloud credentials. Please set the GOOGLE_APPLICATION_CREDENTIALS environment variable with the content of your service account key file.");
-  }
-
-  // Initialize the official client with the loaded credentials.
-  client = new TextToSpeechClient({
-    credentials,
-    projectId: credentials.project_id,
-  });
-
-  return client;
-};
+const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
+// Default voice: "Rachel", a standard pre-made ElevenLabs voice. 
+// Override with ELEVENLABS_VOICE_ID in .env to use a different voice.
+const VOICE_ID = process.env.ELEVENLABS_VOICE_ID || '21m00Tcm4TlvDq8ikWAM';
 
 const textToAudioBuffer = async (text) => {
-  const ttsClient = initializeClient(); // This line ensures the client is ready
-  console.log("TTS Service: Converting text to audio...");
-  const request = {
-    input: { text: text },
-    voice: { languageCode: 'en-US', name: 'en-US-Wavenet-D' },
-    audioConfig: { audioEncoding: 'MP3' },
-  };
+  if (!ELEVENLABS_API_KEY) {
+    throw new Error("Could not find ElevenLabs credentials. Please set the ELEVENLABS_API_KEY environment variable.");
+  }
 
-  const [response] = await ttsClient.synthesizeSpeech(request);
+  console.log("TTS Service: Converting text to audio via ElevenLabs...");
+
+  const response = await fetch(
+    `https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`,
+    {
+      method: 'POST',
+      headers: {
+        'xi-api-key': ELEVENLABS_API_KEY,
+        'Content-Type': 'application/json',
+        'Accept': 'audio/mpeg',
+      },
+      body: JSON.stringify({
+        text,
+        model_id: 'eleven_multilingual_v2',
+        voice_settings: {
+          stability: 0.5,
+          similarity_boost: 0.75,
+        },
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    throw new Error(`ElevenLabs TTS request failed (${response.status}): ${errorBody}`);
+  }
+
+  const arrayBuffer = await response.arrayBuffer();
   console.log("TTS Service: Audio buffer received.");
-  return response.audioContent;
+  return Buffer.from(arrayBuffer);
 };
 
 export const ttsService = {
