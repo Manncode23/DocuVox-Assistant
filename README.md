@@ -17,7 +17,7 @@
 |---|---|
 | **Frontend** | Next.js (App Router), TypeScript, Tailwind CSS, shadcn/ui, Zustand, Framer Motion |
 | **Backend** | Node.js, Express.js, BullMQ |
-| **AI & Data** | Google Gemini, Google Cloud Text-to-Speech, LangChain.js, Qdrant (vector DB), MongoDB Atlas, Upstash Redis |
+| **AI & Data** | Google Gemini, ElevenLabs Text-to-Speech, LangChain.js, Qdrant (vector DB), MongoDB Atlas, Upstash Redis |
 | **Infrastructure** | Vercel (frontend), Railway (API + worker), Cloudflare R2 (object storage), Clerk (auth) |
 
 ## Architecture
