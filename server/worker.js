@@ -241,6 +241,7 @@ console.log('Worker is listening for jobs...');
 // Minimal HTTP server so Render treats this as a Web Service (required for free tier)
 const app = express();
 app.get('/', (req, res) => res.status(200).send('Worker is alive'));
-app.listen(process.env.PORT || 3001, () => {
-  console.log(`Worker health-check server listening on port ${process.env.PORT || 3001}`);
+const workerPort = process.env.WORKER_PORT || process.env.PORT || 3001;
+app.listen(workerPort, () => {
+  console.log(`Worker health-check server listening on port ${workerPort}`);
 });
