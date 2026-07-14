@@ -124,6 +124,7 @@ import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf';
 import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
 import { GoogleGenerativeAIEmbeddings } from '@langchain/google-genai';
 import { QdrantVectorStore } from '@langchain/qdrant';
+import express from 'express';
 
 import connectDB from './config/db.js';
 import Document from './models/document.model.js';
@@ -236,3 +237,10 @@ const worker = new Worker(
 );
 
 console.log('Worker is listening for jobs...');
+
+// Minimal HTTP server so Render treats this as a Web Service (required for free tier)
+const app = express();
+app.get('/', (req, res) => res.status(200).send('Worker is alive'));
+app.listen(process.env.PORT || 3001, () => {
+  console.log(`Worker health-check server listening on port ${process.env.PORT || 3001}`);
+});
