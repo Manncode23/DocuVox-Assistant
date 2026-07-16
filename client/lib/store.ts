@@ -27,9 +27,9 @@ export interface AppState {
   actions: {
     fetchChatRooms: (api: ReturnType<typeof useApi>) => Promise<void>;
     setActiveChatRoomId: (id: string | null, api: ReturnType<typeof useApi>) => Promise<void>;
-    uploadAndTrackDocument: (file: File, api: ReturnType<typeof useApi>) => Promise<void>;
+    uploadAndTrackDocument: (file: File, accessKey: string, api: ReturnType<typeof useApi>) => Promise<void>;
     postMessage: (chatRoomId: string, message: string, api: ReturnType<typeof useApi>) => Promise<void>;
-    generatePodcast: (documentId: string, api: ReturnType<typeof useApi>) => Promise<void>;
+    generatePodcast: (documentId: string, accessKey: string, api: ReturnType<typeof useApi>) => Promise<void>;
   };
 }
 
@@ -110,14 +110,14 @@ const useAppStore = create<AppState>((set, get) => ({
        }
     },
 
-    uploadAndTrackDocument: async (file, api) => {
+    uploadAndTrackDocument: async (file, accessKey, api) => {
       // This implementation with polling is still valid
       set({ uploadStatus: 'uploading' });
       const tempId = `temp_${Date.now()}`;
       const placeholderRoom = { _id: tempId, title: file.name, status: 'PROCESSING' } as unknown as ChatRoom;
       set(state => ({ chatRooms: [placeholderRoom, ...state.chatRooms] }));
       try {
-        const { documentId } = await api.uploadPdf(file);
+        const { documentId } = await api.uploadPdf(file, accessKey);
         if (!documentId) throw new Error("Upload failed.");
         set({ uploadStatus: 'processing' });
         const pollStatus = async () => {
@@ -144,10 +144,10 @@ const useAppStore = create<AppState>((set, get) => ({
       }
     },
 
-    generatePodcast: async (documentId, api) => {
+   generatePodcast: async (documentId, accessKey, api) => {
       set({ podcastStatus: 'GENERATING' });
       try {
-        await api.startPodcastGeneration(documentId);
+       await api.startPodcastGeneration(documentId, accessKey);
         const pollStatus = async () => {
           const { status, url } = await api.getPodcastStatus(documentId);
           if (status === 'COMPLETED') {

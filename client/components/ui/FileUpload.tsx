@@ -18,7 +18,9 @@ const uploadStatus = useUploadStatus();
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     if (file) {
-      await uploadAndTrackDocument(file, api);
+      const accessKey = window.prompt('Enter access key to upload a PDF:');
+      if (!accessKey) return; // user cancelled
+      await uploadAndTrackDocument(file, accessKey, api);
     }
   }, [uploadAndTrackDocument, api]);
 

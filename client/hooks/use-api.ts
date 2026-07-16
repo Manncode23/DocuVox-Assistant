@@ -34,11 +34,11 @@ export const useApi = () => {
 
     return {
       getChatRooms: () => callWithToken(api.getChatRooms),
-      uploadPdf: (file: File) => callWithToken(api.uploadPdf, file),
+      uploadPdf: (file: File, accessKey: string) => callWithToken(api.uploadPdf, file, accessKey),
       getMessages: (chatRoomId: string) => callWithToken(api.getMessages, chatRoomId),
       postMessage: (chatRoomId: string, message: string) => callWithToken(api.postMessage, chatRoomId, message),
       getDocumentStatus: (documentId: string) => callWithToken(api.getDocumentStatus, documentId), // <-- ADD THIS LINE
-      startPodcastGeneration: (documentId: string) => callWithToken(api.startPodcastGeneration, documentId), // <-- ADD
+      startPodcastGeneration: (documentId: string, accessKey: string) => callWithToken(api.startPodcastGeneration, documentId, accessKey), // <-- ADD
       getPodcastStatus: (documentId: string) => callWithToken(api.getPodcastStatus, documentId),
     };
   }, [getToken]);

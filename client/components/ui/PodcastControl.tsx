@@ -46,7 +46,10 @@ export const PodcastControl = () => {
   }, [audioRef.current, podcastUrl]); // Re-attach listeners if the URL changes
   
   const handleGenerate = () => {
-    if (documentId) actions.generatePodcast(documentId, api);
+    if (!documentId) return;
+    const accessKey = window.prompt('Enter access key to generate a podcast:');
+    if (!accessKey) return; // user cancelled
+    actions.generatePodcast(documentId, accessKey, api);
   };
 
   const togglePlay = () => {

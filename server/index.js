@@ -60,7 +60,13 @@ const startServer = async () => {
   // ========== API ENDPOINTS ==========
 
   // --- UPDATED UPLOAD ENDPOINT ---
-  app.post('/upload/pdf', authenticate, upload.single('pdf'), async (req, res) => {
+  app.post('/upload/pdf', authenticate, (req, res, next) => {
+  const providedKey = req.headers['x-access-key'];
+  if (providedKey !== process.env.UPLOAD_ACCESS_KEY) {
+    return res.status(403).json({ error: 'Invalid or missing access key.' });
+  }
+  next();
+}, upload.single('pdf'), async (req, res) => {
     try {
       if (!req.file) return res.status(400).json({ error: 'No file uploaded.' });
       
@@ -160,6 +166,10 @@ const embeddings = new GoogleGenerativeAIEmbeddings({ model: 'gemini-embedding-0
 
   // --- Podcast Endpoints ---
   app.post('/documents/:documentId/podcast', authenticate, async (req, res) => {
+  const providedKey = req.headers['x-access-key'];
+  if (providedKey !== process.env.UPLOAD_ACCESS_KEY) {
+    return res.status(403).json({ error: 'Invalid or missing access key.' });
+  }
     try {
       const document = await Document.findOne({ _id: req.params.documentId, userId: req.user._id });
       if (!document) return res.status(404).json({ error: 'Document not found.' });

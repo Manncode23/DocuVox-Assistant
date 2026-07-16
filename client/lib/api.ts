@@ -32,13 +32,14 @@ export const getChatRooms = async (token: string): Promise<ChatRoom[]> => {
   return response.data;
 };
 
-export const uploadPdf = async (token: string, file: File): Promise<{ documentId: string }> => {
+export const uploadPdf = async (token: string, file: File, accessKey: string): Promise<{ documentId: string }> => {
   const formData = new FormData();
   formData.append('pdf', file);
   const response = await apiClient.post('/upload/pdf', formData, {
     headers: {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'multipart/form-data',
+      'x-access-key': accessKey,
     },
   });
   return response.data;
@@ -58,9 +59,9 @@ export const postMessage = async (token: string, chatRoomId: string, message: st
   return response.data;
 };
 
-export const startPodcastGeneration = async (token: string, documentId: string): Promise<void> => {
+export const startPodcastGeneration = async (token: string, documentId: string, accessKey: string): Promise<void> => {
   await apiClient.post(`/documents/${documentId}/podcast`, {}, {
-    headers: { Authorization: `Bearer ${token}` },
+    headers: { Authorization: `Bearer ${token}`, 'x-access-key': accessKey },
   });
 };
 
